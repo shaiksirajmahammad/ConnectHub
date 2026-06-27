@@ -48,7 +48,7 @@ public class MessageService {
         User loggedInUser=(User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User otherUser=userRepository.findById(id).orElseThrow();
         friendRequestRepository.findAcceptedFriendship(loggedInUser,otherUser).orElseThrow();
-        List<Message>messageList=messageRepository.findConversation(loggedInUser,otherUser);
+        List<Message>messageList=messageRepository.getChat(loggedInUser.getId(),otherUser.getId());
         List<MessageResponse>messageResponseList=new ArrayList<>();
         for(Message message:messageList){
             messageResponseList.add(MessageResponse.builder()

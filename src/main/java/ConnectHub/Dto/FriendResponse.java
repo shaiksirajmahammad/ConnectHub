@@ -8,4 +8,5 @@ import lombok.*;
 public class FriendResponse {
     private Long id;
     private String username;
+    private String email;
 }

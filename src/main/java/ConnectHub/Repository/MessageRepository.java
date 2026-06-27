@@ -20,4 +20,15 @@ ORDER BY m.sentAt
             User user1,
             User user2
     );
+
+    @Query("""
+SELECT m FROM Message m
+WHERE
+(m.sender.id = :myId AND m.receiver.id = :friendId)
+OR
+(m.sender.id = :friendId AND m.receiver.id = :myId)
+ORDER BY m.sentAt ASC
+""")
+    List<Message> getChat(Long myId, Long friendId);
+
 }

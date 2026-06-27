@@ -167,6 +167,7 @@ public class FriendRequestService {
                     FriendResponse.builder()
                             .id(friend.getId())
                             .username(friend.getUsername())
+                            .email(friend.getEmail())
                             .build()
             );
         }
