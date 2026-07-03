@@ -1,0 +1,44 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: mysql-container
+    environment:
+      MYSQL_ROOT_PASSWORD: Kingsiraj@24
+      MYSQL_DATABASE: connecthub
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - connecthub-network
+
+  springboot-app:
+    image: d5c3fb5f3a3a
+    container_name: springboot-container
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/connecthub
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: Kingsiraj@24
+    networks:
+      - connecthub-network
+
+  frontend:
+    image: 80c066a3b968
+    container_name: frontend-container
+    ports:
+      - "3000:80"
+    depends_on:
+      - springboot-app
+    networks:
+      - connecthub-network
+
+networks:
+  connecthub-network:
+    driver: bridge
+
+volumes:
+  mysql-data:
