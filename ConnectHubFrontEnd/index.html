@@ -2,17 +2,17 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
   <title>ConnectHub</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
       --bg: #0f0f13;
       --surface: #18181f;
       --surface2: #22222c;
+      --surface3: #2a2a36;
       --border: #2e2e3a;
       --accent: #7c6af7;
       --accent-dim: #3d3480;
@@ -20,526 +20,285 @@
       --text-dim: #7a7a9a;
       --green: #4ade80;
       --red: #f87171;
+      --amber: #fbbf24;
       --radius: 12px;
       --font: 'Segoe UI', system-ui, sans-serif;
     }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--font);
-      height: 100vh;
-      overflow: hidden;
-    }
+    body { background: var(--bg); color: var(--text); font-family: var(--font); height: 100vh; overflow: hidden; }
+    button, input, textarea { font-family: var(--font); }
+    ::selection { background: var(--accent-dim); }
 
     /* ── AUTH ── */
     #auth-screen {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
+      display: flex; align-items: center; justify-content: center; height: 100vh;
       background: radial-gradient(ellipse at 60% 30%, #1a1440 0%, var(--bg) 70%);
     }
-
-    .auth-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 40px;
-      width: 380px;
-      box-shadow: 0 24px 64px rgba(0,0,0,0.5);
-    }
-
-    .auth-logo {
-      font-size: 28px;
-      font-weight: 800;
-      letter-spacing: -1px;
-      color: var(--accent);
-      margin-bottom: 6px;
-    }
-
-    .auth-tagline {
-      color: var(--text-dim);
-      font-size: 13px;
-      margin-bottom: 32px;
-    }
-
-    .tab-row {
-      display: flex;
-      background: var(--surface2);
-      border-radius: 10px;
-      padding: 4px;
-      margin-bottom: 28px;
-    }
-
-    .tab-btn {
-      flex: 1;
-      padding: 9px;
-      border: none;
-      background: transparent;
-      color: var(--text-dim);
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .tab-btn.active {
-      background: var(--accent);
-      color: #fff;
-    }
-
-    .form-group {
-      margin-bottom: 16px;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-dim);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-bottom: 7px;
-    }
-
-    .form-group input {
-      width: 100%;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 11px 14px;
-      color: var(--text);
-      font-size: 14px;
-      outline: none;
-      transition: border 0.2s;
-    }
-
-    .form-group input:focus {
-      border-color: var(--accent);
-    }
-
-    .btn-primary {
-      width: 100%;
-      padding: 12px;
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      margin-top: 8px;
-      transition: opacity 0.2s;
-    }
-
+    .auth-card { background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 40px; width: 380px; box-shadow: 0 24px 64px rgba(0,0,0,0.5); }
+    .auth-logo { font-size: 28px; font-weight: 800; letter-spacing: -1px; color: var(--accent); margin-bottom: 6px; display:flex; align-items:center; gap:8px; }
+    .auth-logo .dot { width:10px; height:10px; border-radius:50%; background: var(--green); box-shadow: 0 0 8px var(--green); }
+    .auth-tagline { color: var(--text-dim); font-size: 13px; margin-bottom: 28px; }
+    .tab-row { display: flex; background: var(--surface2); border-radius: 10px; padding: 4px; margin-bottom: 24px; }
+    .tab-btn { flex: 1; padding: 9px; border: none; background: transparent; color: var(--text-dim); border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .tab-btn.active { background: var(--accent); color: #fff; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 7px; }
+    .form-group input { width: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 11px 14px; color: var(--text); font-size: 14px; outline: none; transition: border 0.2s; }
+    .form-group input:focus { border-color: var(--accent); }
+    .btn-primary { width: 100%; padding: 12px; background: var(--accent); color: #fff; border: none; border-radius: 10px; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 4px; transition: opacity 0.2s; }
     .btn-primary:hover { opacity: 0.88; }
     .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+    .error-msg { background: rgba(248,113,113,0.12); border: 1px solid rgba(248,113,113,0.3); color: var(--red); border-radius: 8px; padding: 10px 14px; font-size: 13px; margin-top: 14px; }
+    .ok-msg { background: rgba(74,222,128,0.12); border: 1px solid rgba(74,222,128,0.3); color: var(--green); border-radius: 8px; padding: 10px 14px; font-size: 13px; margin-top: 14px; }
 
-    .error-msg {
-      background: rgba(248,113,113,0.12);
-      border: 1px solid rgba(248,113,113,0.3);
-      color: var(--red);
-      border-radius: 8px;
-      padding: 10px 14px;
-      font-size: 13px;
-      margin-top: 14px;
-    }
+    .api-config-link { display:block; text-align:center; margin-top:18px; font-size:11px; color:var(--text-dim); cursor:pointer; text-decoration:underline; }
+    .api-config-link:hover { color: var(--accent); }
 
     /* ── APP SHELL ── */
-    #app-screen {
-      display: none;
-      height: 100vh;
-      flex-direction: row;
-    }
+    #app-screen { display: none; height: 100vh; flex-direction: row; }
 
     /* ── SIDEBAR ── */
-    .sidebar {
-      width: 300px;
-      min-width: 300px;
-      background: var(--surface);
-      border-right: 1px solid var(--border);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
+    .sidebar { width: 310px; min-width: 310px; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+    .sidebar-header { padding: 18px 20px 0; display:flex; align-items:center; justify-content:space-between; }
+    .sidebar-logo { font-size: 19px; font-weight: 800; color: var(--accent); letter-spacing: -0.5px; display:flex; align-items:center; gap:7px; }
+    .sidebar-logo .dot { width:8px; height:8px; border-radius:50%; background: var(--green); }
+    .gear-btn { background:none; border:none; color:var(--text-dim); cursor:pointer; font-size:15px; padding:4px; }
+    .gear-btn:hover { color: var(--accent); }
 
-    .sidebar-header {
-      padding: 20px 20px 0;
-    }
-
-    .sidebar-logo {
-      font-size: 20px;
-      font-weight: 800;
-      color: var(--accent);
-      letter-spacing: -0.5px;
-    }
-
-    .sidebar-user {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 14px 20px;
-      border-bottom: 1px solid var(--border);
-    }
-
-    .avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: var(--accent-dim);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--accent);
-      flex-shrink: 0;
-    }
-
-    .avatar.sm { width: 30px; height: 30px; font-size: 12px; }
+    .sidebar-user { display: flex; align-items: center; gap: 10px; padding: 14px 20px; border-bottom: 1px solid var(--border); }
+    .avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--accent-dim); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: var(--accent); flex-shrink: 0; position: relative; }
+    .avatar.sm { width: 32px; height: 32px; font-size: 12px; }
     .avatar.lg { width: 44px; height: 44px; font-size: 18px; }
+    .presence-dot { position:absolute; width:10px; height:10px; border-radius:50%; border:2px solid var(--surface); bottom:-1px; right:-1px; background: var(--text-dim); }
+    .presence-dot.online { background: var(--green); box-shadow:0 0 6px rgba(74,222,128,.6); }
+    .avatar.sm .presence-dot { width:9px; height:9px; }
 
     .user-info { flex: 1; min-width: 0; }
     .user-name { font-size: 13px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .user-email { font-size: 11px; color: var(--text-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-    .logout-btn {
-      background: none;
-      border: none;
-      color: var(--text-dim);
-      cursor: pointer;
-      font-size: 18px;
-      padding: 4px;
-      border-radius: 6px;
-      transition: color 0.2s;
-    }
+    .logout-btn { background: none; border: none; color: var(--text-dim); cursor: pointer; font-size: 17px; padding: 4px; border-radius: 6px; transition: color 0.2s; }
     .logout-btn:hover { color: var(--red); }
 
-    .sidebar-nav {
-      display: flex;
-      gap: 4px;
-      padding: 12px 20px;
-    }
+    .sidebar-nav { display: flex; gap: 4px; padding: 12px 16px; }
+    .nav-tab { flex: 1; padding: 8px 4px; background: none; border: none; color: var(--text-dim); font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; position: relative; }
+    .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
-    .nav-tab {
-      flex: 1;
-      padding: 7px 4px;
-      background: none;
-      border: none;
-      color: var(--text-dim);
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
-      transition: all 0.2s;
-    }
-
-    .nav-tab.active {
-      color: var(--accent);
-      border-bottom-color: var(--accent);
-    }
-
-    .sidebar-body {
-      flex: 1;
-      overflow-y: auto;
-      padding: 0 12px 12px;
-    }
-
+    .sidebar-body { flex: 1; overflow-y: auto; padding: 0 12px 12px; }
     .sidebar-body::-webkit-scrollbar { width: 4px; }
     .sidebar-body::-webkit-scrollbar-track { background: transparent; }
     .sidebar-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-    .section-label {
-      font-size: 10px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--text-dim);
-      padding: 10px 8px 6px;
-    }
+    .section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim); padding: 10px 8px 6px; display:flex; justify-content:space-between; align-items:center; }
 
-    .friend-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 10px;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: background 0.15s;
-    }
-
+    .friend-item { display: flex; align-items: center; gap: 10px; padding: 10px 10px; border-radius: 10px; cursor: pointer; transition: background 0.15s; position:relative; }
     .friend-item:hover { background: var(--surface2); }
     .friend-item.active { background: var(--accent-dim); }
-
     .friend-meta { flex: 1; min-width: 0; }
     .friend-name { font-size: 13px; font-weight: 600; }
-    .friend-email { font-size: 11px; color: var(--text-dim); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .friend-status { font-size: 11px; color: var(--text-dim); }
+    .friend-status.online { color: var(--green); }
+    .unread-badge { background: var(--accent); color:#fff; font-size:10px; font-weight:700; min-width:18px; height:18px; border-radius:9px; display:flex; align-items:center; justify-content:center; padding:0 5px; }
 
-    .pending-item {
-      background: var(--surface2);
-      border-radius: 10px;
-      padding: 12px;
-      margin-bottom: 8px;
-    }
-
-    .pending-meta { margin-bottom: 10px; }
+    .pending-item { background: var(--surface2); border-radius: 10px; padding: 12px; margin-bottom: 8px; }
+    .pending-meta { display:flex; align-items:center; gap:10px; margin-bottom: 10px; }
     .pending-name { font-size: 13px; font-weight: 600; }
-    .pending-email { font-size: 11px; color: var(--text-dim); }
-
+    .pending-sub { font-size: 11px; color: var(--text-dim); }
     .btn-row { display: flex; gap: 6px; }
-
-    .btn-accept {
-      flex: 1;
-      padding: 7px;
-      background: rgba(74,222,128,0.15);
-      border: 1px solid rgba(74,222,128,0.3);
-      color: var(--green);
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
+    .btn-accept { flex: 1; padding: 7px; background: rgba(74,222,128,0.15); border: 1px solid rgba(74,222,128,0.3); color: var(--green); border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
     .btn-accept:hover { background: rgba(74,222,128,0.25); }
-
-    .btn-reject {
-      flex: 1;
-      padding: 7px;
-      background: rgba(248,113,113,0.12);
-      border: 1px solid rgba(248,113,113,0.25);
-      color: var(--red);
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
+    .btn-reject { flex: 1; padding: 7px; background: rgba(248,113,113,0.12); border: 1px solid rgba(248,113,113,0.25); color: var(--red); border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
     .btn-reject:hover { background: rgba(248,113,113,0.22); }
 
-    .add-friend-box {
-      padding: 12px;
-      background: var(--surface2);
-      border-radius: 10px;
-      margin-bottom: 12px;
-    }
-
-    .add-friend-box input {
-      width: 100%;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 9px 12px;
-      color: var(--text);
-      font-size: 13px;
-      outline: none;
-      margin-bottom: 8px;
-      transition: border 0.2s;
-    }
-
-    .add-friend-box input:focus { border-color: var(--accent); }
-
-    .btn-add {
-      width: 100%;
-      padding: 9px;
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: opacity 0.2s;
-    }
+    .search-box { padding: 12px; background: var(--surface2); border-radius: 10px; margin-bottom: 14px; }
+    .search-box input { width: 100%; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 9px 12px; color: var(--text); font-size: 13px; outline: none; margin-bottom: 8px; transition: border 0.2s; }
+    .search-box input:focus { border-color: var(--accent); }
+    .btn-add { width: 100%; padding: 9px; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: opacity 0.2s; }
     .btn-add:hover { opacity: 0.85; }
-
-    .toast {
-      font-size: 12px;
-      margin-top: 8px;
-      color: var(--green);
-      text-align: center;
-    }
+    .btn-add:disabled { opacity: .5; cursor:not-allowed; }
+    .toast { font-size: 12px; margin-top: 10px; color: var(--green); text-align: center; }
     .toast.err { color: var(--red); }
 
+    .search-hint { font-size: 11.5px; color: var(--text-dim); line-height:1.5; padding: 2px 4px 12px; }
+
     /* ── CHAT AREA ── */
-    .chat-area {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-    }
-
-    .chat-empty {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-dim);
-      gap: 12px;
-    }
-
+    .chat-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .chat-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--text-dim); gap: 12px; }
     .chat-empty-icon { font-size: 52px; opacity: 0.3; }
     .chat-empty-title { font-size: 18px; font-weight: 700; color: var(--text); opacity: 0.5; }
     .chat-empty-sub { font-size: 13px; }
 
-    .chat-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 16px 24px;
-      border-bottom: 1px solid var(--border);
-      background: var(--surface);
-    }
-
+    .chat-header { display: flex; align-items: center; gap: 12px; padding: 14px 24px; border-bottom: 1px solid var(--border); background: var(--surface); }
     .chat-header-info { flex: 1; }
     .chat-header-name { font-size: 15px; font-weight: 700; }
-    .chat-header-email { font-size: 12px; color: var(--text-dim); }
+    .chat-header-status { font-size: 12px; color: var(--text-dim); }
+    .chat-header-status.online { color: var(--green); }
 
-    .ws-status {
-      font-size: 11px;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-weight: 600;
-    }
+    .ws-status { font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 600; white-space:nowrap; }
     .ws-status.connected { background: rgba(74,222,128,0.15); color: var(--green); }
     .ws-status.disconnected { background: rgba(248,113,113,0.12); color: var(--red); }
 
-    .messages-area {
-      flex: 1;
-      overflow-y: auto;
-      padding: 20px 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
+    .messages-area { flex: 1; overflow-y: auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 4px; }
     .messages-area::-webkit-scrollbar { width: 4px; }
     .messages-area::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
-    .msg-group { margin-bottom: 8px; }
-
-    .msg-bubble {
-      max-width: 68%;
-      padding: 10px 14px;
-      border-radius: 16px;
-      font-size: 14px;
-      line-height: 1.5;
-      word-break: break-word;
-    }
-
-    .msg-bubble.sent {
-      background: var(--accent);
-      color: #fff;
-      border-bottom-right-radius: 4px;
-      align-self: flex-end;
-      margin-left: auto;
-    }
-
-    .msg-bubble.received {
-      background: var(--surface2);
-      color: var(--text);
-      border-bottom-left-radius: 4px;
-    }
-
-    .msg-time {
-      font-size: 10px;
-      color: var(--text-dim);
-      margin-top: 3px;
-    }
-
-    .msg-row { display: flex; flex-direction: column; }
+    .msg-bubble { max-width: 68%; padding: 10px 14px; border-radius: 16px; font-size: 14px; line-height: 1.5; word-break: break-word; }
+    .msg-bubble.sent { background: var(--accent); color: #fff; border-bottom-right-radius: 4px; align-self: flex-end; margin-left: auto; }
+    .msg-bubble.received { background: var(--surface2); color: var(--text); border-bottom-left-radius: 4px; }
+    .msg-time { font-size: 10px; color: var(--text-dim); margin-top: 3px; }
+    .msg-row { display: flex; flex-direction: column; margin-bottom: 10px; }
     .msg-row.sent { align-items: flex-end; }
     .msg-row.received { align-items: flex-start; }
 
-    .typing-indicator {
-      font-size: 12px;
-      color: var(--text-dim);
-      font-style: italic;
-      padding: 4px 0;
-      min-height: 20px;
-    }
-
-    .chat-input-area {
-      padding: 16px 24px;
-      border-top: 1px solid var(--border);
-      background: var(--surface);
-      display: flex;
-      gap: 10px;
-      align-items: flex-end;
-    }
-
-    .chat-input {
-      flex: 1;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 12px 16px;
-      color: var(--text);
-      font-size: 14px;
-      font-family: var(--font);
-      outline: none;
-      resize: none;
-      max-height: 120px;
-      transition: border 0.2s;
-      line-height: 1.4;
-    }
+    .chat-input-area { padding: 16px 24px; border-top: 1px solid var(--border); background: var(--surface); display: flex; gap: 10px; align-items: flex-end; }
+    .chat-input { flex: 1; background: var(--surface2); border: 1px solid var(--border); border-radius: 14px; padding: 12px 16px; color: var(--text); font-size: 14px; font-family: var(--font); outline: none; resize: none; max-height: 120px; transition: border 0.2s; line-height: 1.4; }
     .chat-input:focus { border-color: var(--accent); }
-
-    .send-btn {
-      width: 44px;
-      height: 44px;
-      background: var(--accent);
-      border: none;
-      border-radius: 12px;
-      color: #fff;
-      font-size: 18px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      transition: opacity 0.2s;
-    }
+    .send-btn { width: 44px; height: 44px; background: var(--accent); border: none; border-radius: 12px; color: #fff; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: opacity 0.2s; }
     .send-btn:hover { opacity: 0.85; }
     .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    .empty-section {
-      padding: 24px 8px;
-      text-align: center;
-      color: var(--text-dim);
-      font-size: 13px;
+    .empty-section { padding: 24px 8px; text-align: center; color: var(--text-dim); font-size: 13px; line-height:1.5; }
+    .badge { background: var(--accent); color: #fff; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; }
+    .date-divider { text-align: center; font-size: 11px; color: var(--text-dim); margin: 12px 0; position: relative; }
+    .date-divider::before, .date-divider::after { content: ''; position: absolute; top: 50%; width: 40%; height: 1px; background: var(--border); }
+    .date-divider::before { left: 0; } .date-divider::after { right: 0; }
+
+    /* modal */
+    .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); align-items:center; justify-content:center; z-index:50; }
+    .modal-overlay.show { display:flex; }
+    .modal-card { background: var(--surface); border:1px solid var(--border); border-radius:16px; padding:28px; width:360px; }
+    .modal-card h3 { font-size:15px; margin-bottom:14px; }
+    .modal-card .form-group input { font-size:13px; }
+    .modal-actions { display:flex; gap:8px; margin-top:16px; }
+    .btn-secondary { flex:1; padding:10px; background: var(--surface2); border:1px solid var(--border); color:var(--text); border-radius:8px; font-size:13px; font-weight:600; cursor:pointer; }
+    .btn-secondary:hover { background: var(--surface3); }
+
+    .back-btn {
+      display: none;
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 20px;
+      cursor: pointer;
+      padding: 4px 8px 4px 0;
+      line-height: 1;
+      flex-shrink: 0;
     }
 
-    .badge {
-      background: var(--accent);
-      color: #fff;
-      font-size: 10px;
-      font-weight: 700;
-      padding: 2px 6px;
-      border-radius: 10px;
+    /* ══════════════════════ MOBILE / SMALL SCREENS ══════════════════════ */
+    @media (max-width: 768px) {
+      html, body { height: 100%; overflow: hidden; }
+
+      #auth-screen { padding: 16px; }
+      .auth-card { width: 100%; max-width: 400px; padding: 28px 22px; }
+
+      /* stack sidebar + chat full-screen, slide between them */
+      #app-screen { position: relative; overflow: hidden; }
+      .sidebar {
+        width: 100%; min-width: 100%;
+        position: absolute; inset: 0;
+        z-index: 2;
+        transition: transform 0.22s ease;
+      }
+      .chat-area {
+        width: 100%;
+        position: absolute; inset: 0;
+        z-index: 1;
+        transform: translateX(100%);
+        transition: transform 0.22s ease;
+      }
+      #app-screen.mobile-chat-active .sidebar { transform: translateX(-100%); }
+      #app-screen.mobile-chat-active .chat-area { transform: translateX(0); }
+
+      .back-btn { display: inline-flex; align-items: center; justify-content: center; }
+
+      /* bigger touch targets */
+      .nav-tab { padding: 10px 4px; font-size: 12px; }
+      .friend-item { padding: 12px 10px; }
+      .friend-name { font-size: 14px; }
+      .pending-item { padding: 14px; }
+      .btn-accept, .btn-reject { padding: 10px; font-size: 13px; }
+      .btn-add { padding: 12px; }
+      .send-btn { width: 46px; height: 46px; }
+      .logout-btn, .gear-btn { font-size: 20px; padding: 8px; }
+
+      /* prevent iOS auto-zoom on focus: inputs need >=16px font */
+      .form-group input,
+      .search-box input,
+      .modal-card input,
+      .chat-input {
+        font-size: 16px;
+      }
+
+      .chat-header { padding: 12px 14px; gap: 8px; }
+      .chat-header-name { font-size: 14px; }
+      .messages-area { padding: 14px 14px; }
+      .chat-input-area {
+        padding: 10px 12px;
+        padding-bottom: max(10px, env(safe-area-inset-bottom));
+        gap: 8px;
+      }
+      .msg-bubble { max-width: 82%; }
+
+      .sidebar-header { padding: 14px 16px 0; }
+      .sidebar-user { padding: 12px 16px; }
+      .sidebar-nav { padding: 10px 12px; }
+      .sidebar-body { padding: 0 8px 12px; }
+
+      .modal-card { width: 88%; max-width: 340px; padding: 22px; }
     }
 
-    .date-divider {
-      text-align: center;
-      font-size: 11px;
-      color: var(--text-dim);
-      margin: 12px 0;
-      position: relative;
+    /* JS-driven fallback: mirrors the block above, scoped by html.is-mobile
+       (toggled in JS based on window.innerWidth). This guarantees the mobile
+       layout applies even if @media matching misbehaves in some browser/webview. */
+    html.is-mobile #auth-screen { padding: 16px; }
+    html.is-mobile .auth-card { width: 100%; max-width: 400px; padding: 28px 22px; }
+    html.is-mobile #app-screen { position: relative; overflow: hidden; }
+    html.is-mobile .sidebar {
+      width: 100%; min-width: 100%;
+      position: absolute; inset: 0;
+      z-index: 2;
+      transition: transform 0.22s ease;
     }
-    .date-divider::before, .date-divider::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      width: 40%;
-      height: 1px;
-      background: var(--border);
+    html.is-mobile .chat-area {
+      width: 100%;
+      position: absolute; inset: 0;
+      z-index: 1;
+      transform: translateX(100%);
+      transition: transform 0.22s ease;
     }
-    .date-divider::before { left: 0; }
-    .date-divider::after { right: 0; }
+    html.is-mobile #app-screen.mobile-chat-active .sidebar { transform: translateX(-100%); }
+    html.is-mobile #app-screen.mobile-chat-active .chat-area { transform: translateX(0); }
+    html.is-mobile .back-btn { display: inline-flex; align-items: center; justify-content: center; }
+    html.is-mobile .nav-tab { padding: 10px 4px; font-size: 12px; }
+    html.is-mobile .friend-item { padding: 12px 10px; }
+    html.is-mobile .friend-name { font-size: 14px; }
+    html.is-mobile .pending-item { padding: 14px; }
+    html.is-mobile .btn-accept, html.is-mobile .btn-reject { padding: 10px; font-size: 13px; }
+    html.is-mobile .btn-add { padding: 12px; }
+    html.is-mobile .send-btn { width: 46px; height: 46px; }
+    html.is-mobile .logout-btn, html.is-mobile .gear-btn { font-size: 20px; padding: 8px; }
+    html.is-mobile .form-group input,
+    html.is-mobile .search-box input,
+    html.is-mobile .modal-card input,
+    html.is-mobile .chat-input { font-size: 16px; }
+    html.is-mobile .chat-header { padding: 12px 14px; gap: 8px; }
+    html.is-mobile .chat-header-name { font-size: 14px; }
+    html.is-mobile .messages-area { padding: 14px 14px; }
+    html.is-mobile .chat-input-area {
+      padding: 10px 12px;
+      padding-bottom: max(10px, env(safe-area-inset-bottom));
+      gap: 8px;
+    }
+    html.is-mobile .msg-bubble { max-width: 82%; }
+    html.is-mobile .sidebar-header { padding: 14px 16px 0; }
+    html.is-mobile .sidebar-user { padding: 12px 16px; }
+    html.is-mobile .sidebar-nav { padding: 10px 12px; }
+    html.is-mobile .sidebar-body { padding: 0 8px 12px; }
+    html.is-mobile .modal-card { width: 88%; max-width: 340px; padding: 22px; }
+
+    @media (max-width: 380px) {
+      .auth-card { padding: 22px 16px; }
+      .nav-tab { font-size: 11px; }
+    }
   </style>
 </head>
 <body>
@@ -547,15 +306,14 @@
 <!-- AUTH SCREEN -->
 <div id="auth-screen">
   <div class="auth-card">
-    <div class="auth-logo">ConnectHub</div>
+    <div class="auth-logo"><span class="dot"></span>ConnectHub</div>
     <div class="auth-tagline">Chat with your friends in real-time</div>
 
     <div class="tab-row">
-      <button class="tab-btn active" onclick="switchTab('login')">Login</button>
-      <button class="tab-btn" onclick="switchTab('register')">Register</button>
+      <button class="tab-btn active" id="tab-login-btn" onclick="switchTab('login')">Login</button>
+      <button class="tab-btn" id="tab-register-btn" onclick="switchTab('register')">Register</button>
     </div>
 
-    <!-- LOGIN -->
     <div id="login-form">
       <div class="form-group">
         <label>Email</label>
@@ -568,7 +326,6 @@
       <button class="btn-primary" onclick="doLogin()" id="login-btn">Login</button>
     </div>
 
-    <!-- REGISTER -->
     <div id="register-form" style="display:none">
       <div class="form-group">
         <label>Username</label>
@@ -586,16 +343,34 @@
     </div>
 
     <div id="auth-error" class="error-msg" style="display:none"></div>
+    <div id="auth-ok" class="ok-msg" style="display:none"></div>
+
+    <span class="api-config-link" onclick="openApiModal()">Server: <span id="api-url-preview"></span> (change)</span>
+  </div>
+</div>
+
+<!-- API CONFIG MODAL -->
+<div class="modal-overlay" id="api-modal">
+  <div class="modal-card">
+    <h3>Backend server URL</h3>
+    <div class="form-group">
+      <label>API base URL</label>
+      <input type="text" id="api-url-input" placeholder="https://your-backend.example.com" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeApiModal()">Cancel</button>
+      <button class="btn-primary" style="margin:0" onclick="saveApiUrl()">Save</button>
+    </div>
   </div>
 </div>
 
 <!-- APP SCREEN -->
 <div id="app-screen">
 
-  <!-- SIDEBAR -->
   <div class="sidebar">
     <div class="sidebar-header">
-      <div class="sidebar-logo">ConnectHub</div>
+      <div class="sidebar-logo"><span class="dot"></span>ConnectHub</div>
+      <button class="gear-btn" title="Settings" onclick="openApiModal()">⚙</button>
     </div>
 
     <div class="sidebar-user">
@@ -609,42 +384,33 @@
 
     <div class="sidebar-nav">
       <button class="nav-tab active" onclick="showPanel('chats')">Chats</button>
-      <button class="nav-tab" onclick="showPanel('requests')">
-        Requests <span class="badge" id="pending-badge" style="display:none">0</span>
-      </button>
-      <button class="nav-tab" onclick="showPanel('add')">Add</button>
+      <button class="nav-tab" onclick="showPanel('requests')">Requests <span class="badge" id="pending-badge" style="display:none">0</span></button>
+      <button class="nav-tab" onclick="showPanel('search')">Search</button>
     </div>
 
     <div class="sidebar-body">
-
-      <!-- CHATS PANEL -->
       <div id="panel-chats">
         <div class="section-label">Friends</div>
         <div id="friends-list"></div>
       </div>
 
-      <!-- REQUESTS PANEL -->
       <div id="panel-requests" style="display:none">
         <div class="section-label">Pending Requests</div>
         <div id="pending-list"></div>
       </div>
 
-      <!-- ADD PANEL -->
-      <div id="panel-add" style="display:none">
-        <div class="add-friend-box">
-          <div class="section-label" style="padding:0 0 8px">Send Friend Request</div>
-          <input type="number" id="add-friend-id" placeholder="Enter User ID" />
-          <button class="btn-add" onclick="sendFriendRequest()">Send Request</button>
-          <div id="add-toast" class="toast" style="display:none"></div>
+      <div id="panel-search" style="display:none">
+        <div class="search-box">
+          <div class="section-label" style="padding:0 0 8px">Find & Add Friend</div>
+          <input type="email" id="search-email" placeholder="friend@example.com" onkeydown="if(event.key==='Enter')sendFriendRequest()" />
+          <button class="btn-add" onclick="sendFriendRequest()" id="search-btn">Send Friend Request</button>
+          <div id="search-toast" class="toast" style="display:none"></div>
         </div>
-        <div class="section-label">All Users</div>
-        <div id="all-users-list"></div>
+        <div class="search-hint">Enter the exact email address of the person you want to add. If they exist, a friend request will be sent to them instantly.</div>
       </div>
-
     </div>
   </div>
 
-  <!-- CHAT AREA -->
   <div class="chat-area">
     <div class="chat-empty" id="chat-empty">
       <div class="chat-empty-icon">💬</div>
@@ -652,472 +418,622 @@
       <div class="chat-empty-sub">Pick a friend from the sidebar to start chatting</div>
     </div>
 
-    <div id="chat-window" style="display:none; flex-direction:column; height:100%; display:none">
+    <div id="chat-window" style="display:none; flex-direction:column; height:100%;">
       <div class="chat-header">
-        <div class="avatar lg" id="chat-avatar">?</div>
+        <button class="back-btn" id="back-btn" onclick="closeChatMobile()" aria-label="Back to chats">←</button>
+        <div class="avatar lg" id="chat-avatar">?<span class="presence-dot" id="chat-presence-dot"></span></div>
         <div class="chat-header-info">
           <div class="chat-header-name" id="chat-friend-name">—</div>
-          <div class="chat-header-email" id="chat-friend-email">—</div>
+          <div class="chat-header-status" id="chat-friend-status">Offline</div>
         </div>
         <div class="ws-status disconnected" id="ws-badge">● Offline</div>
       </div>
 
       <div class="messages-area" id="messages-area"></div>
 
-      <div class="typing-indicator" id="typing-indicator" style="padding:0 24px 4px"></div>
-
       <div class="chat-input-area">
-        <textarea class="chat-input" id="chat-input" rows="1" placeholder="Type a message..."
-          oninput="onTyping()" onkeydown="handleKey(event)"></textarea>
+        <textarea class="chat-input" id="chat-input" rows="1" placeholder="Type a message..." oninput="autoResize()" onkeydown="handleKey(event)"></textarea>
         <button class="send-btn" onclick="sendMessage()">➤</button>
       </div>
     </div>
   </div>
-
 </div>
 
 <script>
-// ── CONFIG ──
-const API = 'http://localhost:8080';
-
-// ── STATE ──
-let token = localStorage.getItem('ch_token') || null;
-let myEmail = localStorage.getItem('ch_email') || null;
-let myUsername = localStorage.getItem('ch_username') || null;
-let myId = localStorage.getItem('ch_id') || null;
-let stompClient = null;
-let wsConnected = false;
-let selectedFriend = null; // { id, username, email }
-let friendsMap = {};       // email -> friend obj
-let typingTimer = null;
-
-// ── INIT ──
-window.onload = () => {
-  if (token && myEmail) {
-    showApp();
+  // ══════════════════════════ CONFIG ══════════════════════════
+  function guessDefaultApi() {
+    if (location.origin && location.origin.startsWith('http') && location.port === '8080') return location.origin;
+    return 'https://connecthub-backend-latest.onrender.com';
   }
-};
+  let API = localStorage.getItem('ch_api_url') || guessDefaultApi();
 
-// ── AUTH TAB ──
-function switchTab(tab) {
-  document.getElementById('login-form').style.display = tab === 'login' ? 'block' : 'none';
-  document.getElementById('register-form').style.display = tab === 'register' ? 'block' : 'none';
-  document.querySelectorAll('.tab-btn').forEach((b, i) => {
-    b.classList.toggle('active', (i === 0 && tab === 'login') || (i === 1 && tab === 'register'));
-  });
-  hideAuthError();
-}
-
-function showAuthError(msg) {
-  const el = document.getElementById('auth-error');
-  el.textContent = msg;
-  el.style.display = 'block';
-}
-function hideAuthError() {
-  document.getElementById('auth-error').style.display = 'none';
-}
-
-// ── LOGIN ──
-async function doLogin() {
-  const email = document.getElementById('login-email').value.trim();
-  const password = document.getElementById('login-password').value;
-  if (!email || !password) return showAuthError('Please fill all fields');
-
-  const btn = document.getElementById('login-btn');
-  btn.disabled = true; btn.textContent = 'Logging in...';
-
-  try {
-    const res = await fetch(`${API}/api/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Login failed');
-
-    token = data.jwt;
-    myId = data.id;
-    localStorage.setItem('ch_token', token);
-    localStorage.setItem('ch_id', myId);
-
-    // fetch profile
-    const prof = await apiFetch('/api/user/profile');
-    myEmail = prof.email;
-    myUsername = prof.username;
-    localStorage.setItem('ch_email', myEmail);
-    localStorage.setItem('ch_username', myUsername);
-
-    showApp();
-  } catch (e) {
-    showAuthError(e.message);
-  } finally {
-    btn.disabled = false; btn.textContent = 'Login';
+  const MOBILE_BREAKPOINT = 768;
+  function isMobileLayout() { return window.innerWidth <= MOBILE_BREAKPOINT; }
+  function updateMobileClass() {
+    document.documentElement.classList.toggle('is-mobile', isMobileLayout());
   }
-}
+  updateMobileClass();
+  window.addEventListener('resize', updateMobileClass);
+  window.addEventListener('orientationchange', updateMobileClass);
 
-// ── REGISTER ──
-async function doRegister() {
-  const username = document.getElementById('reg-username').value.trim();
-  const email = document.getElementById('reg-email').value.trim();
-  const password = document.getElementById('reg-password').value;
-  if (!username || !email || !password) return showAuthError('Please fill all fields');
-
-  const btn = document.getElementById('register-btn');
-  btn.disabled = true; btn.textContent = 'Creating...';
-
-  try {
-    const res = await fetch(`${API}/api/auth/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, email, password })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || 'Registration failed');
-    switchTab('login');
-    document.getElementById('login-email').value = email;
-    hideAuthError();
-  } catch (e) {
-    showAuthError(e.message);
-  } finally {
-    btn.disabled = false; btn.textContent = 'Create Account';
+  // The backend serializes timestamps as a plain LocalDateTime string with no
+  // timezone/offset info (e.g. "2026-07-14T11:11:00"). Browsers interpret a
+  // timezone-less ISO string as being in the BROWSER's local timezone, but the
+  // value actually came from the server's clock — which on Render (and most
+  // cloud containers) runs in UTC. Without correcting for this, times are off
+  // by however many hours separate the viewer from UTC. We assume the server
+  // clock is UTC and tag the string accordingly before parsing.
+  function parseServerDate(raw) {
+    if (!raw) return null;
+    let s = String(raw);
+    // Already has an explicit offset or 'Z' — trust it as-is.
+    if (/Z$|[+-]\d{2}:?\d{2}$/.test(s)) return new Date(s);
+    // Normalize "YYYY-MM-DD HH:mm:ss" -> "YYYY-MM-DDTHH:mm:ss" then mark as UTC.
+    s = s.replace(' ', 'T');
+    return new Date(s + 'Z');
   }
-}
 
-// ── LOGOUT ──
-function doLogout() {
-  disconnectWS();
-  token = myEmail = myUsername = myId = null;
-  selectedFriend = null;
-  localStorage.clear();
-  document.getElementById('app-screen').style.display = 'none';
-  document.getElementById('auth-screen').style.display = 'flex';
-}
+  // ══════════════════════════ STATE ══════════════════════════
+  let token = localStorage.getItem('ch_token') || null;
+  let myEmail = localStorage.getItem('ch_email') || null;
+  let myUsername = localStorage.getItem('ch_username') || null;
+  let myId = localStorage.getItem('ch_id') || null;
 
-// ── SHOW APP ──
-function showApp() {
-  document.getElementById('auth-screen').style.display = 'none';
-  document.getElementById('app-screen').style.display = 'flex';
-  document.getElementById('my-avatar').textContent = initial(myUsername || myEmail);
-  document.getElementById('my-username').textContent = myUsername || '—';
-  document.getElementById('my-email').textContent = myEmail || '—';
-  loadFriends();
-  loadPending();
-  connectWS();
-}
+  let stompClient = null;
+  let wsConnected = false;
+  let selectedFriend = null;      // { id, username, email }
+  let friendsList = [];           // [{id, username, email}]
+  let unreadCounts = {};          // email -> count
+  let presence = {};              // email -> last heartbeat timestamp (ms)
+  let heartbeatTimer = null;
+  let presenceUiTimer = null;
+  const PRESENCE_ONLINE_WINDOW_MS = 15000; // considered online if heartbeat within this window
+  const PRESENCE_HEARTBEAT_MS = 7000;
 
-// ── API HELPER ──
-async function apiFetch(path, options = {}) {
-  const res = await fetch(`${API}${path}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${token}`,
-      ...(options.headers || {})
+  // ══════════════════════════ INIT ══════════════════════════
+  window.onload = () => {
+    document.getElementById('api-url-preview').textContent = API;
+    if (token && myEmail) showApp();
+  };
+
+  window.addEventListener('beforeunload', () => { disconnectWS(); });
+
+  // ══════════════════════════ API CONFIG MODAL ══════════════════════════
+  function openApiModal() {
+    document.getElementById('api-url-input').value = API;
+    document.getElementById('api-modal').classList.add('show');
+  }
+  function closeApiModal() { document.getElementById('api-modal').classList.remove('show'); }
+  function saveApiUrl() {
+    const val = document.getElementById('api-url-input').value.trim().replace(/\/$/, '');
+    if (!val) return;
+    API = val;
+    localStorage.setItem('ch_api_url', API);
+    document.getElementById('api-url-preview').textContent = API;
+    closeApiModal();
+  }
+
+  // ══════════════════════════ AUTH TABS ══════════════════════════
+  function switchTab(tab) {
+    document.getElementById('login-form').style.display = tab === 'login' ? 'block' : 'none';
+    document.getElementById('register-form').style.display = tab === 'register' ? 'block' : 'none';
+    document.getElementById('tab-login-btn').classList.toggle('active', tab === 'login');
+    document.getElementById('tab-register-btn').classList.toggle('active', tab === 'register');
+    hideAuthMsgs();
+  }
+  function showAuthError(msg) {
+    hideAuthMsgs();
+    const el = document.getElementById('auth-error');
+    el.textContent = msg; el.style.display = 'block';
+  }
+  function showAuthOk(msg) {
+    hideAuthMsgs();
+    const el = document.getElementById('auth-ok');
+    el.textContent = msg; el.style.display = 'block';
+  }
+  function hideAuthMsgs() {
+    document.getElementById('auth-error').style.display = 'none';
+    document.getElementById('auth-ok').style.display = 'none';
+  }
+
+  // ══════════════════════════ LOGIN ══════════════════════════
+  async function doLogin() {
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    if (!email || !password) return showAuthError('Please fill all fields');
+
+    const btn = document.getElementById('login-btn');
+    btn.disabled = true; btn.textContent = 'Logging in...';
+
+    try {
+      const res = await fetch(`${API}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await safeJson(res);
+      if (!res.ok) throw new Error(data.message || 'Login failed');
+
+      token = data.jwt;
+      myId = data.id;
+      localStorage.setItem('ch_token', token);
+      localStorage.setItem('ch_id', myId);
+
+      const prof = await apiFetch('/api/user/profile');
+      myEmail = prof.email;
+      myUsername = prof.username;
+      localStorage.setItem('ch_email', myEmail);
+      localStorage.setItem('ch_username', myUsername);
+
+      showApp();
+    } catch (e) {
+      showAuthError(e.message || 'Login failed. Check the server URL and try again.');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Login';
     }
-  });
-  if (res.status === 401) { doLogout(); throw new Error('Session expired'); }
-  const text = await res.text();
-  try { return JSON.parse(text); } catch { return text; }
-}
-
-// ── FRIENDS ──
-async function loadFriends() {
-  try {
-    const list = await apiFetch('/api/friends/friendlist');
-    friendsMap = {};
-    list.forEach(f => friendsMap[f.email] = f);
-    renderFriends(list);
-  } catch(e) { console.error(e); }
-}
-
-function renderFriends(list) {
-  const el = document.getElementById('friends-list');
-  if (!list.length) {
-    el.innerHTML = '<div class="empty-section">No friends yet. Add some!</div>';
-    return;
-  }
-  el.innerHTML = list.map(f => `
-    <div class="friend-item ${selectedFriend?.id === f.id ? 'active' : ''}"
-         onclick="openChat(${f.id}, '${esc(f.username)}', '${esc(f.email)}')">
-      <div class="avatar sm">${initial(f.username)}</div>
-      <div class="friend-meta">
-        <div class="friend-name">${esc(f.username)}</div>
-        <div class="friend-email">${esc(f.email)}</div>
-      </div>
-    </div>
-  `).join('');
-}
-
-// ── PENDING REQUESTS ──
-async function loadPending() {
-  try {
-    const list = await apiFetch('/api/friends/pending');
-    const badge = document.getElementById('pending-badge');
-    if (list.length) { badge.textContent = list.length; badge.style.display = 'inline'; }
-    else { badge.style.display = 'none'; }
-    renderPending(list);
-  } catch(e) { console.error(e); }
-}
-
-function renderPending(list) {
-  const el = document.getElementById('pending-list');
-  if (!list.length) {
-    el.innerHTML = '<div class="empty-section">No pending requests</div>';
-    return;
-  }
-  el.innerHTML = list.map(r => `
-    <div class="pending-item">
-      <div class="pending-meta">
-        <div class="pending-name">${esc(r.senderUsername || r.username || 'User')}</div>
-        <div class="pending-email">${esc(r.senderEmail || r.email || '')}</div>
-      </div>
-      <div class="btn-row">
-        <button class="btn-accept" onclick="acceptRequest(${r.id})">Accept</button>
-        <button class="btn-reject" onclick="rejectRequest(${r.id})">Reject</button>
-      </div>
-    </div>
-  `).join('');
-}
-
-async function acceptRequest(id) {
-  try {
-    await apiFetch(`/api/friends/accept/${id}`, { method: 'POST' });
-    await loadPending();
-    await loadFriends();
-  } catch(e) { console.error(e); }
-}
-
-async function rejectRequest(id) {
-  try {
-    await apiFetch(`/api/friends/reject/${id}`, { method: 'POST' });
-    await loadPending();
-  } catch(e) { console.error(e); }
-}
-
-// ── SEND FRIEND REQUEST ──
-async function sendFriendRequest() {
-  const id = document.getElementById('add-friend-id').value.trim();
-  if (!id) return;
-  const toast = document.getElementById('add-toast');
-  try {
-    const res = await apiFetch(`/api/friends/request/${id}`, { method: 'POST' });
-    toast.textContent = res || 'Request sent!';
-    toast.className = 'toast';
-    toast.style.display = 'block';
-    document.getElementById('add-friend-id').value = '';
-    setTimeout(() => toast.style.display = 'none', 3000);
-  } catch(e) {
-    toast.textContent = e.message || 'Failed';
-    toast.className = 'toast err';
-    toast.style.display = 'block';
-  }
-}
-
-// ── PANELS ──
-function showPanel(name) {
-  ['chats', 'requests', 'add'].forEach(p => {
-    document.getElementById(`panel-${p}`).style.display = p === name ? 'block' : 'none';
-  });
-  document.querySelectorAll('.nav-tab').forEach((t, i) => {
-    t.classList.toggle('active', ['chats','requests','add'][i] === name);
-  });
-  if (name === 'requests') loadPending();
-}
-
-// ── OPEN CHAT ──
-async function openChat(id, username, email) {
-  selectedFriend = { id, username, email };
-
-  // highlight sidebar
-  document.querySelectorAll('.friend-item').forEach(el => el.classList.remove('active'));
-  event && event.currentTarget && event.currentTarget.classList.add('active');
-
-  // show chat window
-  document.getElementById('chat-empty').style.display = 'none';
-  const win = document.getElementById('chat-window');
-  win.style.display = 'flex';
-  win.style.flexDirection = 'column';
-  win.style.height = '100%';
-
-  document.getElementById('chat-avatar').textContent = initial(username);
-  document.getElementById('chat-friend-name').textContent = username;
-  document.getElementById('chat-friend-email').textContent = email;
-  document.getElementById('typing-indicator').textContent = '';
-
-  await loadHistory(id);
-  document.getElementById('chat-input').focus();
-}
-
-// ── HISTORY ──
-async function loadHistory(friendId) {
-  const area = document.getElementById('messages-area');
-  area.innerHTML = '<div style="text-align:center;color:var(--text-dim);font-size:13px;padding:20px">Loading...</div>';
-  try {
-    const msgs = await apiFetch(`/api/message/history/${friendId}`);
-    renderMessages(msgs);
-  } catch(e) {
-    area.innerHTML = '<div style="text-align:center;color:var(--red);font-size:13px;padding:20px">Failed to load history</div>';
-  }
-}
-
-function renderMessages(msgs) {
-  const area = document.getElementById('messages-area');
-  if (!msgs.length) {
-    area.innerHTML = '<div style="text-align:center;color:var(--text-dim);font-size:13px;padding:40px 0">No messages yet. Say hello! 👋</div>';
-    return;
   }
 
-  let html = '';
-  let lastDate = '';
-  msgs.forEach(m => {
-    const isSent = m.sender === myUsername;
-    const date = m.sentAt ? new Date(m.sentAt).toLocaleDateString() : '';
-    if (date && date !== lastDate) {
-      html += `<div class="date-divider">${date}</div>`;
-      lastDate = date;
+  // ══════════════════════════ REGISTER ══════════════════════════
+  async function doRegister() {
+    const username = document.getElementById('reg-username').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const password = document.getElementById('reg-password').value;
+    if (!username || !email || !password) return showAuthError('Please fill all fields');
+
+    const btn = document.getElementById('register-btn');
+    btn.disabled = true; btn.textContent = 'Creating...';
+
+    try {
+      const res = await fetch(`${API}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password })
+      });
+      const data = await safeJson(res);
+      if (!res.ok) throw new Error(data.message || 'Registration failed');
+      switchTab('login');
+      document.getElementById('login-email').value = email;
+      showAuthOk('Account created! You can log in now.');
+    } catch (e) {
+      showAuthError(e.message || 'Registration failed. Check the server URL and try again.');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Create Account';
     }
-    const time = m.sentAt ? new Date(m.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
-    html += `
-      <div class="msg-row ${isSent ? 'sent' : 'received'}">
-        <div class="msg-bubble ${isSent ? 'sent' : 'received'}">${escHtml(m.content)}</div>
-        <div class="msg-time">${time}</div>
+  }
+
+  // ══════════════════════════ LOGOUT ══════════════════════════
+  function doLogout() {
+    disconnectWS();
+    token = myEmail = myUsername = myId = null;
+    selectedFriend = null;
+    friendsList = []; unreadCounts = {}; presence = {};
+    localStorage.removeItem('ch_token');
+    localStorage.removeItem('ch_email');
+    localStorage.removeItem('ch_username');
+    localStorage.removeItem('ch_id');
+    document.getElementById('app-screen').style.display = 'none';
+    document.getElementById('auth-screen').style.display = 'flex';
+  }
+
+  // ══════════════════════════ SHOW APP ══════════════════════════
+  function showApp() {
+    document.getElementById('auth-screen').style.display = 'none';
+    document.getElementById('app-screen').style.display = 'flex';
+    document.getElementById('my-avatar').textContent = initial(myUsername || myEmail);
+    document.getElementById('my-username').textContent = myUsername || '—';
+    document.getElementById('my-email').textContent = myEmail || '—';
+    loadFriends();
+    loadPending();
+    connectWS();
+    if (presenceUiTimer) clearInterval(presenceUiTimer);
+    presenceUiTimer = setInterval(refreshPresenceUI, 4000);
+  }
+
+  // ══════════════════════════ API HELPER ══════════════════════════
+  async function safeJson(res) {
+    const text = await res.text();
+    try { return JSON.parse(text); } catch { return { message: text }; }
+  }
+  async function apiFetch(path, options = {}) {
+    const res = await fetch(`${API}${path}`, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+        ...(options.headers || {})
+      }
+    });
+    if (res.status === 401) { doLogout(); throw new Error('Session expired, please log in again'); }
+    const data = await safeJson(res);
+    if (!res.ok) throw new Error((data && data.message) || 'Request failed');
+    return data;
+  }
+
+  // ══════════════════════════ FRIENDS ══════════════════════════
+  async function loadFriends() {
+    try {
+      friendsList = await apiFetch('/api/friends/friendlist');
+      renderFriends();
+    } catch(e) { console.error(e); }
+  }
+
+  function renderFriends() {
+    const el = document.getElementById('friends-list');
+    if (!friendsList.length) {
+      el.innerHTML = '<div class="empty-section">No friends yet.<br>Use the Search tab to add someone by email.</div>';
+      return;
+    }
+    el.innerHTML = friendsList.map(f => {
+      const online = isOnline(f.email);
+      const unread = unreadCounts[f.email] || 0;
+      return `
+      <div class="friend-item ${selectedFriend && selectedFriend.id === f.id ? 'active' : ''}" onclick="openChat(${f.id}, '${esc(f.username)}', '${esc(f.email)}')">
+        <div class="avatar sm">${initial(f.username)}<span class="presence-dot ${online ? 'online' : ''}"></span></div>
+        <div class="friend-meta">
+          <div class="friend-name">${escHtml(f.username)}</div>
+          <div class="friend-status ${online ? 'online' : ''}">${online ? 'Online' : 'Offline'}</div>
+        </div>
+        ${unread ? `<div class="unread-badge">${unread > 9 ? '9+' : unread}</div>` : ''}
       </div>`;
+    }).join('');
+  }
+
+  // ══════════════════════════ PENDING REQUESTS ══════════════════════════
+  async function loadPending() {
+    try {
+      const list = await apiFetch('/api/friends/pending');
+      const badge = document.getElementById('pending-badge');
+      if (list.length) { badge.textContent = list.length; badge.style.display = 'inline'; }
+      else { badge.style.display = 'none'; }
+      renderPending(list);
+    } catch(e) { console.error(e); }
+  }
+
+  function renderPending(list) {
+    const el = document.getElementById('pending-list');
+    if (!list.length) {
+      el.innerHTML = '<div class="empty-section">No pending requests</div>';
+      return;
+    }
+    el.innerHTML = list.map(r => `
+      <div class="pending-item">
+        <div class="pending-meta">
+          <div class="avatar sm">${initial(r.username)}</div>
+          <div>
+            <div class="pending-name">${escHtml(r.username || 'User')}</div>
+            <div class="pending-sub">wants to be your friend</div>
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn-accept" onclick="acceptRequest(${r.id})">Accept</button>
+          <button class="btn-reject" onclick="rejectRequest(${r.id})">Reject</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function acceptRequest(id) {
+    try {
+      await apiFetch(`/api/friends/accept/${id}`, { method: 'POST' });
+      await loadPending();
+      await loadFriends();
+    } catch(e) { alert(e.message || 'Could not accept request'); }
+  }
+
+  async function rejectRequest(id) {
+    try {
+      await apiFetch(`/api/friends/reject/${id}`, { method: 'POST' });
+      await loadPending();
+    } catch(e) { alert(e.message || 'Could not reject request'); }
+  }
+
+  // ══════════════════════════ SEARCH / SEND FRIEND REQUEST ══════════════════════════
+  async function sendFriendRequest() {
+    const email = document.getElementById('search-email').value.trim();
+    const toast = document.getElementById('search-toast');
+    const btn = document.getElementById('search-btn');
+    if (!email) return;
+
+    btn.disabled = true;
+    try {
+      const res = await apiFetch(`/api/friends/request/${encodeURIComponent(email)}`, { method: 'POST' });
+      toast.textContent = 'Friend request sent!';
+      toast.className = 'toast';
+      toast.style.display = 'block';
+      document.getElementById('search-email').value = '';
+      setTimeout(() => toast.style.display = 'none', 3500);
+    } catch(e) {
+      toast.textContent = e.message || 'Failed to send request';
+      toast.className = 'toast err';
+      toast.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+    }
+  }
+
+  // ══════════════════════════ PANELS ══════════════════════════
+  function showPanel(name) {
+    ['chats', 'requests', 'search'].forEach(p => {
+      document.getElementById(`panel-${p}`).style.display = p === name ? 'block' : 'none';
+    });
+    document.querySelectorAll('.nav-tab').forEach((t, i) => {
+      t.classList.toggle('active', ['chats','requests','search'][i] === name);
+    });
+    if (name === 'requests') loadPending();
+    if (name === 'chats') loadFriends();
+  }
+
+  // ══════════════════════════ OPEN CHAT ══════════════════════════
+  async function openChat(id, username, email) {
+    selectedFriend = { id, username, email };
+    unreadCounts[email] = 0;
+    renderFriends();
+
+    document.getElementById('chat-empty').style.display = 'none';
+    const win = document.getElementById('chat-window');
+    win.style.display = 'flex';
+
+    document.getElementById('chat-avatar').firstChild.textContent = initial(username);
+    document.getElementById('chat-friend-name').textContent = username;
+    updateChatHeaderPresence();
+
+    if (isMobileLayout()) {
+      document.getElementById('app-screen').classList.add('mobile-chat-active');
+    }
+
+    await loadHistory(id);
+    if (!isMobileLayout()) document.getElementById('chat-input').focus();
+  }
+
+  function closeChatMobile() {
+    document.getElementById('app-screen').classList.remove('mobile-chat-active');
+  }
+
+  window.addEventListener('resize', () => {
+    if (!isMobileLayout()) {
+      document.getElementById('app-screen').classList.remove('mobile-chat-active');
+    }
   });
-  area.innerHTML = html;
-  area.scrollTop = area.scrollHeight;
-}
 
-function appendMessage(content, isSent) {
-  const area = document.getElementById('messages-area');
-  // remove empty placeholder
-  const placeholder = area.querySelector('div[style*="40px 0"]');
-  if (placeholder) placeholder.remove();
+  function updateChatHeaderPresence() {
+    if (!selectedFriend) return;
+    const online = isOnline(selectedFriend.email);
+    const dot = document.getElementById('chat-presence-dot');
+    const status = document.getElementById('chat-friend-status');
+    dot.classList.toggle('online', online);
+    status.textContent = online ? 'Online' : 'Offline';
+    status.classList.toggle('online', online);
+  }
 
-  const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  const row = document.createElement('div');
-  row.className = `msg-row ${isSent ? 'sent' : 'received'}`;
-  row.innerHTML = `
-    <div class="msg-bubble ${isSent ? 'sent' : 'received'}">${escHtml(content)}</div>
-    <div class="msg-time">${time}</div>`;
-  area.appendChild(row);
-  area.scrollTop = area.scrollHeight;
-}
+  // ══════════════════════════ HISTORY ══════════════════════════
+  async function loadHistory(friendId) {
+    const area = document.getElementById('messages-area');
+    area.innerHTML = '<div style="text-align:center;color:var(--text-dim);font-size:13px;padding:20px">Loading...</div>';
+    try {
+      const msgs = await apiFetch(`/api/message/history/${friendId}`);
+      renderMessages(msgs);
+    } catch(e) {
+      area.innerHTML = '<div style="text-align:center;color:var(--red);font-size:13px;padding:20px">Failed to load history</div>';
+    }
+  }
 
-// ── SEND MESSAGE (WebSocket) ──
-function sendMessage() {
-  const input = document.getElementById('chat-input');
-  const content = input.value.trim();
-  if (!content || !selectedFriend) return;
+  function renderMessages(msgs) {
+    const area = document.getElementById('messages-area');
+    if (!msgs.length) {
+      area.innerHTML = '<div style="text-align:center;color:var(--text-dim);font-size:13px;padding:40px 0">No messages yet. Say hello! 👋</div>';
+      return;
+    }
+    let html = '';
+    let lastDate = '';
+    msgs.forEach(m => {
+      const isSent = m.sender === myUsername;
+      const date = m.sentAt ? parseServerDate(m.sentAt).toLocaleDateString() : '';
+      if (date && date !== lastDate) {
+        html += `<div class="date-divider">${date}</div>`;
+        lastDate = date;
+      }
+      const time = m.sentAt ? parseServerDate(m.sentAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+      html += `
+        <div class="msg-row ${isSent ? 'sent' : 'received'}">
+          <div class="msg-bubble ${isSent ? 'sent' : 'received'}">${escHtml(m.content)}</div>
+          <div class="msg-time">${time}</div>
+        </div>`;
+    });
+    area.innerHTML = html;
+    area.scrollTop = area.scrollHeight;
+  }
 
-  if (wsConnected && stompClient) {
-    stompClient.send('/app/send', {}, JSON.stringify({
-      senderEmail: myEmail,
-      receiverEmail: selectedFriend.email,
-      content: content
-    }));
-    appendMessage(content, true);
-    input.value = '';
-    input.style.height = 'auto';
-  } else {
-    // fallback to REST if WebSocket not connected
-    apiFetch(`/api/message/send/${selectedFriend.id}`, {
-      method: 'POST',
-      body: JSON.stringify({ content })
-    }).then(() => {
+  function appendMessage(content, isSent) {
+    const area = document.getElementById('messages-area');
+    const placeholder = area.querySelector('div[style*="40px 0"]');
+    if (placeholder) placeholder.remove();
+
+    const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const row = document.createElement('div');
+    row.className = `msg-row ${isSent ? 'sent' : 'received'}`;
+    row.innerHTML = `
+      <div class="msg-bubble ${isSent ? 'sent' : 'received'}">${escHtml(content)}</div>
+      <div class="msg-time">${time}</div>`;
+    area.appendChild(row);
+    area.scrollTop = area.scrollHeight;
+  }
+
+  // ══════════════════════════ SEND MESSAGE ══════════════════════════
+  function sendMessage() {
+    const input = document.getElementById('chat-input');
+    const content = input.value.trim();
+    if (!content || !selectedFriend) return;
+
+    if (wsConnected && stompClient) {
+      stompClient.send('/app/send', {}, JSON.stringify({
+        senderEmail: myEmail,
+        receiverEmail: selectedFriend.email,
+        content: content
+      }));
       appendMessage(content, true);
       input.value = '';
-    }).catch(e => console.error(e));
+      input.style.height = 'auto';
+    } else {
+      apiFetch(`/api/message/send/${selectedFriend.id}`, {
+        method: 'POST',
+        body: JSON.stringify({ content })
+      }).then(() => {
+        appendMessage(content, true);
+        input.value = '';
+      }).catch(e => alert(e.message || 'Failed to send message'));
+    }
   }
-}
 
-function handleKey(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendMessage();
+  function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+    autoResize();
   }
-  // auto resize textarea
-  const ta = document.getElementById('chat-input');
-  ta.style.height = 'auto';
-  ta.style.height = Math.min(ta.scrollHeight, 120) + 'px';
-}
+  function autoResize() {
+    const ta = document.getElementById('chat-input');
+    ta.style.height = 'auto';
+    ta.style.height = Math.min(ta.scrollHeight, 120) + 'px';
+  }
 
-function onTyping() {
-  const ta = document.getElementById('chat-input');
-  ta.style.height = 'auto';
-  ta.style.height = Math.min(ta.scrollHeight, 120) + 'px';
-}
+  // ══════════════════════════ WEBSOCKET (chat + presence) ══════════════════════════
+  let wsRetryCount = 0;
+  function connectWS() {
+    if (!token) return;
+    try {
+      const socket = new SockJS(`${API}/chat`);
+      stompClient = Stomp.over(socket);
+      stompClient.debug = null;
 
-// ── WEBSOCKET ──
-function connectWS() {
-  if (!token) return;
-  try {
-    const socket = new SockJS(`${API}/chat`);
-    stompClient = Stomp.over(socket);
-    stompClient.debug = null; // silence logs
+      stompClient.connect(
+        { Authorization: `Bearer ${token}` },
+        function() {
+          wsConnected = true;
+          wsRetryCount = 0;
+          updateWSBadge(true);
+          hideWsBanner();
 
-    stompClient.connect(
-      { Authorization: `Bearer ${token}` },
-      function(frame) {
-        wsConnected = true;
-        updateWSBadge(true);
+          // private chat messages
+          stompClient.subscribe('/user/queue/messages', function(msg) {
+            const data = JSON.parse(msg.body);
+            markOnline(data.senderEmail);
+            if (selectedFriend && data.senderEmail === selectedFriend.email) {
+              appendMessage(data.content, false);
+            } else {
+              unreadCounts[data.senderEmail] = (unreadCounts[data.senderEmail] || 0) + 1;
+              renderFriends();
+            }
+          });
 
-        // subscribe to private messages
-        stompClient.subscribe('/user/queue/messages', function(msg) {
-          const data = JSON.parse(msg.body);
-          // only show if chat with that sender is open
-          if (selectedFriend && data.senderEmail === selectedFriend.email) {
-            appendMessage(data.content, false);
-          }
-        });
-      },
-      function(error) {
-        wsConnected = false;
-        updateWSBadge(false);
-        // retry after 4 seconds
-        setTimeout(connectWS, 4000);
-      }
-    );
-  } catch(e) {
+          // presence broadcast — any connected client can publish/subscribe to
+          // broker destinations (/topic, /queue) directly per the STOMP broker
+          // config, so we use a shared heartbeat topic to approximate live
+          // online/offline status without needing a dedicated backend endpoint.
+          stompClient.subscribe('/topic/presence', function(msg) {
+            try {
+              const data = JSON.parse(msg.body);
+              if (data && data.email) markOnline(data.email);
+            } catch(e) {}
+          });
+
+          sendHeartbeat();
+          if (heartbeatTimer) clearInterval(heartbeatTimer);
+          heartbeatTimer = setInterval(sendHeartbeat, PRESENCE_HEARTBEAT_MS);
+        },
+        function(err) {
+          wsConnected = false;
+          updateWSBadge(false);
+          if (heartbeatTimer) { clearInterval(heartbeatTimer); heartbeatTimer = null; }
+          wsRetryCount++;
+          // Surface real diagnostics in the console — this is almost always
+          // either a CORS/allowed-origin mismatch on the backend, or a wrong
+          // API base URL, never a "silent" failure worth hiding.
+          console.error('[ConnectHub] WebSocket connect failed (attempt ' + wsRetryCount + '). ' +
+            'Common causes: 1) backend CORS/WebSocket allowed-origin list does not include this ' +
+            'site\'s URL (' + location.origin + '), 2) the API base URL is wrong (currently "' + API + '"), ' +
+            '3) the backend is asleep/unreachable. Raw error:', err);
+          if (wsRetryCount >= 3) showWsBanner();
+          const delay = Math.min(4000 * Math.pow(1.5, Math.min(wsRetryCount, 5)), 20000);
+          setTimeout(connectWS, delay);
+        }
+      );
+    } catch(e) {
+      wsConnected = false;
+      updateWSBadge(false);
+      console.error('[ConnectHub] Failed to initialize WebSocket:', e);
+    }
+  }
+
+  function showWsBanner() {
+    let el = document.getElementById('ws-banner');
+    if (el) { el.style.display = 'flex'; return; }
+    el = document.createElement('div');
+    el.id = 'ws-banner';
+    el.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:100;background:#3d1f1f;color:#f87171;' +
+      'font-size:12.5px;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;gap:10px;' +
+      'border-bottom:1px solid rgba(248,113,113,0.4);';
+    el.innerHTML = '<span>Live chat can\'t reach the server (' + esc(API) + '). Messages will use a slower fallback. ' +
+      'Open the browser console for details, or check <span onclick="openApiModal()" style="text-decoration:underline;cursor:pointer">the server URL</span>.</span>' +
+      '<button onclick="hideWsBanner()" style="background:none;border:none;color:#f87171;font-size:16px;cursor:pointer;flex-shrink:0">×</button>';
+    document.body.appendChild(el);
+  }
+  function hideWsBanner() {
+    const el = document.getElementById('ws-banner');
+    if (el) el.style.display = 'none';
+  }
+
+  function sendHeartbeat() {
+    if (!wsConnected || !stompClient || !myEmail) return;
+    try {
+      stompClient.send('/topic/presence', {}, JSON.stringify({ email: myEmail, ts: Date.now() }));
+      markOnline(myEmail);
+    } catch(e) {}
+  }
+
+  function disconnectWS() {
+    if (heartbeatTimer) { clearInterval(heartbeatTimer); heartbeatTimer = null; }
+    if (stompClient) {
+      try { stompClient.disconnect(); } catch(e) {}
+      stompClient = null;
+    }
     wsConnected = false;
-    updateWSBadge(false);
   }
-}
 
-function disconnectWS() {
-  if (stompClient) {
-    try { stompClient.disconnect(); } catch(e) {}
-    stompClient = null;
+  function updateWSBadge(connected) {
+    const badge = document.getElementById('ws-badge');
+    if (!badge) return;
+    badge.textContent = connected ? '● Live' : '● Offline';
+    badge.className = connected ? 'ws-status connected' : 'ws-status disconnected';
   }
-  wsConnected = false;
-}
 
-function updateWSBadge(connected) {
-  const badge = document.getElementById('ws-badge');
-  if (!badge) return;
-  if (connected) {
-    badge.textContent = '● Live';
-    badge.className = 'ws-status connected';
-  } else {
-    badge.textContent = '● Offline';
-    badge.className = 'ws-status disconnected';
+  // ══════════════════════════ PRESENCE ══════════════════════════
+  function markOnline(email) {
+    if (!email) return;
+    presence[email] = Date.now();
   }
-}
+  function isOnline(email) {
+    const last = presence[email];
+    return !!last && (Date.now() - last) < PRESENCE_ONLINE_WINDOW_MS;
+  }
+  function refreshPresenceUI() {
+    renderFriends();
+    updateChatHeaderPresence();
+  }
 
-// ── UTILS ──
-function initial(str) {
-  if (!str) return '?';
-  return str.charAt(0).toUpperCase();
-}
-
-function esc(str) {
-  if (!str) return '';
-  return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-}
-
-function escHtml(str) {
-  if (!str) return '';
-  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
-}
+  // ══════════════════════════ UTILS ══════════════════════════
+  function initial(str) {
+    if (!str) return '?';
+    return str.charAt(0).toUpperCase();
+  }
+  function esc(str) {
+    if (!str) return '';
+    return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+  }
+  function escHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+  }
 </script>
 </body>
 </html>

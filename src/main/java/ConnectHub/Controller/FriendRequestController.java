@@ -18,9 +18,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FriendRequestController {
     private final FriendRequestService friendRequestService;
-    @PostMapping("/request/{id}")
-    public ResponseEntity<String>request(@PathVariable Long id){
-        String status=friendRequestService.request(id);
+    @PostMapping("/request/{email}")
+    public ResponseEntity<String>request(@PathVariable String email){
+        String status=friendRequestService.request(email);
         return ResponseEntity.status(HttpStatus.CREATED).body(status);
 
     }

@@ -21,9 +21,9 @@ import java.util.List;
 public class FriendRequestService {
     private final UserRepository userRepository;
     private final FriendRequestRepository friendRequestRepository;
-    public String request(Long id) {
+    public String request(String id) {
         User sender= (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        User receiver=userRepository.findById(id).orElseThrow(() ->
+        User receiver=userRepository.findByEmail(id).orElseThrow(() ->
                 new RuntimeException("User not found"));
         if(sender.getId().equals(receiver.getId())){
             throw new RuntimeException(
@@ -139,7 +139,7 @@ public class FriendRequestService {
         List<PendingRequestResponse>userList=new ArrayList<>();
         for(FriendRequest friendRequest:friendRequestList){
             userList.add(PendingRequestResponse.builder()
-                            .id(friendRequest.getSender().getId())
+                            .id(friendRequest.getId())
                             .username(friendRequest.getSender().getUsername())
                     .build());
         }

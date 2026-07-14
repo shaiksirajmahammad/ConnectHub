@@ -2,6 +2,7 @@ package ConnectHub.Config;
 
 import ConnectHub.Security.WebSocketAuthInterceptor;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -17,6 +18,9 @@ public class WebSocketConfig
         implements WebSocketMessageBrokerConfigurer {
     private final WebSocketAuthInterceptor
             webSocketAuthInterceptor;
+    @Value("${allowed.origins}") // e.g. env var: ALLOWED_ORIGINS=https://your-actual-frontend.onrender.com
+    private String[] allowedOrigins;
+
 
 
     @Override
@@ -24,8 +28,8 @@ public class WebSocketConfig
             StompEndpointRegistry registry) {
 
         registry.addEndpoint("/chat")
-                .setAllowedOriginPatterns("http://127.0.0.1:3000",
-                        "http://localhost:3000") .withSockJS();
+                .setAllowedOriginPatterns(allowedOrigins)
+                .withSockJS();
     }
 
 
