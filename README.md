@@ -178,6 +178,4 @@ Authenticated requests use `Authorization: Bearer <jwt>`.
 
 ---
 
-## License
 
-Add your preferred license here (e.g. MIT).
